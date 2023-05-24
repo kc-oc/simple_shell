@@ -31,10 +31,8 @@ int _unsetenv(info_c *info_struct, const char *name)
     list_c **node = &(info_struct->env);
     size_t i = 0;
     char *p;
-
     if (!node || !name)
         return (0);
-
     while (*node)
     {
         p = starts_with((*node)->str, name);
@@ -42,7 +40,7 @@ int _unsetenv(info_c *info_struct, const char *name)
         {
             info_struct->env_changed = delete_node_at_idx(node, i);
             i = 0;
-            continue;  // Continue without advancing the node pointer
+            continue;
         }
         node = &((*node)->next);
         i++;
@@ -64,14 +62,11 @@ void _setenv(info_c *info_struct, char *name, char *value)
     char *buf = NULL;
     list_c *node;
     char *p;
-
     if (!name || !value)
         return;
-
     buf = malloc(_strlen(name) + _strlen(value) + 2);
     if (!buf)
         return;
-
     _strcpy(buf, name);
     _strcat(buf, "=");
     _strcat(buf, value);
