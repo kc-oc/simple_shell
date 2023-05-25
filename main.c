@@ -1,8 +1,8 @@
-#include "shell.h"
+#include "main.h"
 
 
 /**
- * main - entry poin
+ * main - entry point
  * @ac: arg count
  * @av: arg vector
  *
