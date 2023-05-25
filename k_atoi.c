@@ -1,6 +1,6 @@
 #include "main.h"
 #include <stdio.h>
-
+#ifndef 
 /**
  * interactive - This returns true if shell is interactive mode
  * @info: This is a struct address
