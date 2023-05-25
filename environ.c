@@ -76,11 +76,11 @@ void _setenv(info_c *info_struct)
 }
 
 /**
- * list_t - Initialize new env variable,
+ * populate_env_list - This initialize new env variable,
  *           or modify an existing one
- * @info_struct: Structure containing potential arguments. Used to maintain
+ * @info_struct: This is a structure containing potential arguments. Used to maintain
  *               constant function prototype.
- * Return: Always 0
+ * Return: This is always 0
  */
 
 int populate_env_list(info_t *info)
