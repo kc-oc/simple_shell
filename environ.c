@@ -1,10 +1,10 @@
 #include "main.h"
 
 /**
- * _myenv - returns string array copy of env
- * @info: Structure containing potential arguments. Used to maintain
+ * _myenv - This returns string array copy of env
+ * @info: This is a structure containing potential arguments. Used to maintain
  *               constant function prototype.
- * Return: String array copy of the environment variables
+ * Return: This is a string array copy of the environment variables
  */
 int _myenv(info_t *info)
 {
@@ -13,34 +13,39 @@ int _myenv(info_t *info)
 }
 
 /**
- * _getenv - gets the value of an environ variable
- * @info: Structure containing potential arguments. Used to maintain
- * @name: env var name
- * Return: the value
+ * _getenv - This gets the value of an environ variable
+ * @info: This is a structure containing potential arguments. Used to maintain
+ * @name: This is a env var name
+ * Return: This is the value
  */
 char *_getenv(info_t *info, const char *name)
 {
 	list_t *node = info->env;
 	char *p;
+
 	while (node)
+
 	{
 		p = starts_with(node->str, name);
 		if (p && *p)
 			return (p);
 		node = node->next;
 	}
+
 	return (NULL);
 }
 
 /**
- * _unsetenv - Remove env variable
- * @info: Structure containing potential arguments. Used to maintain
+ * _unsetenv - This removes env variable
+ * @info: This is structure containing potential arguments. Used to maintain
  *               constant function prototype.
- * Return: 1 on delete, 0 otherwise
+ * Return: This is 1 on delete, always 0 otherwise
  */
+
 int _unsetenv(info_c *info)
 {
 	int i;
+
 	if (info->argc == 1)
 	{
 		_eputs("Too few arguements.\n");
@@ -69,6 +74,14 @@ void _setenv(info_c *info_struct)
 		return (0);
 	return (1);
 }
+
+/**
+ * list_t - Initialize new env variable,
+ *           or modify an existing one
+ * @info_struct: Structure containing potential arguments. Used to maintain
+ *               constant function prototype.
+ * Return: Always 0
+ */
 
 int populate_env_list(info_t *info)
 {
