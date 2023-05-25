@@ -3,7 +3,6 @@
 
 /**
  * interactive - This returns true if shell is interactive mode
- * 
  * @info: This is a struct address
  *
  * Return: 1 if interactive mode, 0 otherwise
@@ -16,11 +15,9 @@ int interactive(info_t *info)
 
 /**
  * is_delim - This is to check if character is a delimeter
- * 
  * @c: This is the char to check
  * 
  * @delim: This is the delimeter string
- *
  * Return: 1 if true, 0 if false
  */
 
