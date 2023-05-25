@@ -1,51 +1,54 @@
 #include "main.h"
 
 /**
- * get_environ - returns string array copy of env
- * @info_struct: Structure containing potential arguments. Used to maintain
+ * _myenv - returns string array copy of env
+ * @info: Structure containing potential arguments. Used to maintain
  *               constant function prototype.
  * Return: String array copy of the environment variables
  */
-char **get_environ(info_c *info_struct)
+int _myenv(info_t *info)
 {
-    if (!info_struct->environ || info_struct->env_changed)
-    {
-        if (info_struct->environ)
-            free_list(info_struct->environ);  // Free the previous environment variables list
-        info_struct->environ = list_co_strings(info_struct->env);
-        info_struct->env_changed = 0;
-    }
+	print_list_str(info->env);
+	return (0);
+}
 
-    return (info_struct->environ);
+/**
+ * _getenv - gets the value of an environ variable
+ * @info: Structure containing potential arguments. Used to maintain
+ * @name: env var name
+ * Return: the value
+ */
+char *_getenv(info_t *info, const char *name)
+{
+	list_t *node = info->env;
+	char *p;
+	while (node)
+	{
+		p = starts_with(node->str, name);
+		if (p && *p)
+			return (p);
+		node = node->next;
+	}
+	return (NULL);
 }
 
 /**
  * _unsetenv - Remove env variable
- * @info_struct: Structure containing potential arguments. Used to maintain
+ * @info: Structure containing potential arguments. Used to maintain
  *               constant function prototype.
- * @name: the string env variable property
  * Return: 1 on delete, 0 otherwise
  */
-int _unsetenv(info_c *info_struct, const char *name)
+int _unsetenv(info_c *info)
 {
-    list_c **node = &(info_struct->env);
-    size_t i = 0;
-    char *p;
-    if (!node || !name)
-        return (0);
-    while (*node)
-    {
-        p = starts_with((*node)->str, name);
-        if (p && *p == '=')
-        {
-            info_struct->env_changed = delete_node_at_idx(node, i);
-            i = 0;
-            continue;
-        }
-        node = &((*node)->next);
-        i++;
-    }
-    return (info_struct->env_changed);
+	int i;
+	if (info->argc == 1)
+	{
+		_eputs("Too few arguements.\n");
+		return (1);
+	}
+	for (i = 1; i <= info->argc; i++)
+		_unsetenv(info, info->argv[i]);
+	return (0);
 }
 
 /**
@@ -53,37 +56,27 @@ int _unsetenv(info_c *info_struct, const char *name)
  *           or modify an existing one
  * @info_struct: Structure containing potential arguments. Used to maintain
  *               constant function prototype.
- * @name: the string env variable property
- * @value: the string env variable value
  * Return: Always 0
  */
-void _setenv(info_c *info_struct, char *name, char *value)
+void _setenv(info_c *info_struct)
 {
-    char *buf = NULL;
-    list_c *node;
-    char *p;
-    if (!name || !value)
-        return;
-    buf = malloc(_strlen(name) + _strlen(value) + 2);
-    if (!buf)
-        return;
-    _strcpy(buf, name);
-    _strcat(buf, "=");
-    _strcat(buf, value);
-    node = info_struct->env;
-    while (node)
-    {
-        p = starts_with(node->str, name);
-        if (p && *p == '=')
-        {
-            free(node->str);
-            node->str = buf;
-            info_struct->env_changed = 1;
-            return;
-        }
-        node = node->next;
-    }
-    add_node_end(&(info_struct->env), buf, 0);
-    free(buf);
-    info_struct->env_changed = 1;
+	if (info->argc != 3)
+	{
+		_eputs("Incorrect number of arguements\n");
+		return (1);
+	}
+	if (_setenv(info, info->argv[1], info->argv[2]))
+		return (0);
+	return (1);
+}
+
+int populate_env_list(info_t *info)
+{
+	list_t *node = NULL;
+	size_t i;
+
+	for (i = 0; environ[i]; i++)
+		add_node_end(&node, environ[i], 0);
+	info->env = node;
+	return (0);
 }
