@@ -140,7 +140,7 @@ char *find_path(info_t *, char *, char *);
 /* loophsh.c */
 int loophsh(char **);
 
-/* kk_errors.c */
+/* kk__errors.c */
 void _eputs(char *);
 int _eputchar(char);
 int _putfd(char c, int fd);
@@ -163,11 +163,11 @@ char *_strncpy(char *, char *, int);
 char *_strncat(char *, char *, int);
 char *_strchr(char *, char);
 
-/* kk_tokenizer.c */
+/* kk_token.c */
 char **strtow(char *, char *);
 char **strtow2(char *, char);
 
-/* kk_realloc.c */
+/* kk_reallocation.c */
 char *_memset(char *, char, unsigned int);
 void ffree(char **);
 void *_realloc(void *, unsigned int, unsigned int);
@@ -202,7 +202,7 @@ int _mysetenv(info_t *);
 int _myunsetenv(info_t *);
 int populate_env_list(info_t *);
 
-/* kk_getenv.c */
+/* kk_geten.c */
 char **get_environ(info_t *);
 int _unsetenv(info_t *, char *);
 int _setenv(info_t *, char *, char *);
