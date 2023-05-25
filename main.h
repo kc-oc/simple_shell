@@ -234,4 +234,4 @@ size_t print_list_str(const list_t *);
 int delete_node_at_index(list_t **, unsigned int);
 void free_list(list_t **);
 
-#endif
+#endif /*_MAIN_H_*/
