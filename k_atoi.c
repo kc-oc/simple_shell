@@ -1,8 +1,9 @@
 #include "main.h"
 
 /**
- * interactive - returns true if shell is interactive mode
- * @info: struct address
+ * interactive - This returns true if shell is interactive mode
+ * 
+ * @info: This is a struct address
  *
  * Return: 1 if interactive mode, 0 otherwise
  */
@@ -13,9 +14,11 @@ int interactive(info_t *info)
 }
 
 /**
- * is_delim - checks if character is a delimiter
- * @c: the char to check
- * @delim: the delimiter string
+ * is_delim - This is to check if character is a delimeter
+ * 
+ * @c: This is the char to check
+ * 
+ * @delim: This is the delimeter string
  *
  * Return: 1 if true, 0 if false
  */
@@ -30,8 +33,8 @@ int is_delim(char c, char *delim)
 }
 
 /**
- * _isalpha - checks for alphabetic character
- * @c: The character to input
+ * _isalpha - This checks for alphabetic character
+ * @c: This is the character to input
  *
  * Return: 1 if c is alphabetic, 0 otherwise
  */
@@ -45,94 +48,36 @@ int _isalpha(int c)
 }
 
 /**
- * _atoi - converts a string to an integer
- * @s: the string to be converted
+ * _atoi - This converts a string to an integer
+ * @s: This is the string to be converted
  *
  * Return: 0 if no numbers in string, converted number otherwise
  */
 
 int _atoi(char *s)
 {
-	int i;
+	int i, sign = 1, flag = 0, output;
 	unsigned int result = 0;
 
-	for (i = 0; s[i] != '\0' && flag != 2; i++)
+	for (i = 0;  s[i] != '\0' && flag != 2; i++)
 	{
-
+		if (s[i] == '-')
+			sign *= -1;
 
 		if (s[i] >= '0' && s[i] <= '9')
 		{
+			flag = 1;
 			result *= 10;
 			result += (s[i] - '0');
 		}
-		else
-			return (-1);
-	}
-	return (result);
-}
-
-/**
- * reverse_string - reverses a string
- * @s: the string to be reversed
- */
-void reverse_string(char *s)
-{
-	if (s == NULL)
-		return;
-
-	int i, j;
-	char temp;
-
-	for (i = 0, j = strlen(s) - 1; i < j; i++, j--)
-	{
-		temp = s[i];
-		s[i] = s[j];
-		s[j] = temp;
-	}
-}
-
-/**
- * itoa - converts an integer to a string
- * @num: the integer to be converted
- * @str: the destination string
- * @base: the base for conversion
- *
- * Return: pointer to the resulting string
- */
-char *itoa(int num, char *str, int base)
-{
-	if (str == NULL)
-		return NULL;
-
-	int i = 0;
-	int is_negative = 0;
-
-	if (num == 0)
-	{
-		str[i++] = '0';
-		str[i] = '\0';
-		return str;
+		else if (flag == 1)
+			flag = 2;
 	}
 
-	if (num < 0 && base == 10)
-	{
-		is_negative = 1;
-		num = -num;
-	}
+	if (sign == -1)
+		output = -result;
+	else
+		output = result;
 
-	while (num != 0)
-	{
-		int rem = num % base;
-		str[i++] = (rem > 9) ? (rem - 10) + 'a' : rem + '0';
-		num = num / base;
-	}
-
-	if (is_negative)
-		str[i++] = '-';
-
-	str[i] = '\0';
-
-	reverse_string(str);
-
-	return str;
+	return (output);
 }
