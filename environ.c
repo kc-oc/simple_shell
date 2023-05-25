@@ -42,7 +42,7 @@ char *_getenv(info_t *info, const char *name)
  * Return: This is 1 on delete, always 0 otherwise
  */
 
-int _unsetenv(info_c *info)
+int _unsetenv(info_t *info)
 {
 	int i;
 
@@ -63,7 +63,7 @@ int _unsetenv(info_c *info)
  *               constant function prototype.
  * Return: Always 0
  */
-void _setenv(info_c *info_struct)
+void _setenv(info_t *info_struct)
 {
 	if (info->argc != 3)
 	{
