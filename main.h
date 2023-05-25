@@ -72,7 +72,6 @@ typedef struct liststr
  * @status: This is the return status of the last exec'd command
  * @cmd_buf: This is address of pointer to cmd_buf, on if chaining
  * @cmd_buf_type: CMD_type ||, &&, ;
-
  */
 
 typedef struct passinfo
