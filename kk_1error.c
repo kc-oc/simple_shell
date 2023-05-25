@@ -122,7 +122,8 @@ char *convert_number(long int num, int base, int flags)
 }
 
 /**
- * remove_comments - This is the function  replaces first instance of '#' with '\0'
+ * remove_comments - This is the function replaces first
+ * instance of '#' with '\0'
  * @buf: This is an address of the string to modify
  *
  * Return: Always 0;
