@@ -12,29 +12,38 @@
 #include <fcntl.h>
 #include <errno.h>
 
-
+/* for read/write buffers */
 #define READ_BUF_SIZE 1024
 #define WRITE_BUF_SIZE 1024
 #define BUF_FLUSH -1
+
+/* for command chaining */
 #define CMD_NORM	0
 #define CMD_OR		1
 #define CMD_AND		2
 #define CMD_CHAIN	3
+
+/* for convert_number() */
 #define CONVERT_LOWERCASE	1
 #define CONVERT_UNSIGNED	2
+
+/* 1 if using system getline() */
 #define USE_GETLINE 0
 #define USE_STRTOK 0
+
 #define HIST_FILE	".simple_shell_history"
 #define HIST_MAX	4096
+
 extern char **environ;
 
 
 /**
- * struct data - struct that contains all relevant data on runtime
- * @num: the number field
- * @str: a string
- * @next: points to the next node
+ * struct liststr - This is a singly linked list
+ * @num: This is the number field
+ * @str: This is a string
+ * @next: This points to the next node
  */
+
 typedef struct liststr
 {
 	int num;
@@ -43,27 +52,29 @@ typedef struct liststr
 } list_t;
 
 /**
- * struct passinfo - contains pseudo-arguements to pass into a function,
+ * struct passinfo - This contains pseudo-arguements to pass into a function,
  * allowing uniform prototype for function pointer struct
- * @arg: a string generated from getline containing arguement
- * @argv: an array of strings generated from arg
- * @path: a string path for the current command
- * @argc: the argument count
- * @line_count: the error count
- * @err_num: the error code for exit()s
- * @linecount_flag: if on count this line of input
- * @fname: the program filename
- * @env: linked list local copy of environ
- * @environ: custom modified copy of environ from LL env
- * @history: the history node
- * @alias: the alias node
- * @env_changed: on if environ was changed
- * @status: the return status of the last exec'd command
- * @cmd_buf: address of pointer to cmd_buf, on if chaining
+ * @arg: This is a string generated from getline containing arguement
+ * @readfd: This is the fd from which to read line input
+ * @histcount: This is the history line number count
+ * @argv: This is an array of strings generated from arg
+ * @env: This is a linked list local copy of environ
+ * @environ: This is a custom modified copy of environ from LL env
+ * @history: This is the history node
+ * @path: This is a string path for the current command
+ * @argc: This is a the argument count
+ * @line_count: This is the error count
+ * @err_num: This is the error code for exit()s
+ * @linecount_flag: This is if on count this line of input
+ * @fname: This is the program filename
+ * @alias: This is the alias node
+ * @env_changed: This is on if environ was changed
+ * @status: This is the return status of the last exec'd command
+ * @cmd_buf: This is address of pointer to cmd_buf, on if chaining
  * @cmd_buf_type: CMD_type ||, &&, ;
- * @readfd: the fd from which to read line input
- * @histcount: the history line number count
+
  */
+
 typedef struct passinfo
 {
 	char *arg;
@@ -102,129 +113,126 @@ typedef struct builtin
 	int (*func)(info_t *);
 } builtin_table;
 
+/* kk_shell_loop.c */
+int hsh(info_t *, char **);
+int find_builtin(info_t *);
+void find_cmd(info_t *);
+void fork_cmd(info_t *);
+
+/* kk_lists1.c */
+size_t list_len(const list_t *);
+char **list_to_strings(list_t *);
+size_t print_list(const list_t *);
+list_t *node_starts_with(list_t *, char *, char);
+ssize_t get_node_index(list_t *, list_t *);
+
+/* kk_vars.c */
+int is_chain(info_t *, char *, size_t *);
+void check_chain(info_t *, char *, size_t *, size_t, size_t);
+int replace_alias(info_t *);
+int replace_vars(info_t *);
+int replace_string(char **, char *);
+
+/* kk_parser.c */
+int is_cmd(info_t *, char *);
+char *dup_chars(char *, int, int);
+char *find_path(info_t *, char *, char *);
+
+/* loophsh.c */
+int loophsh(char **);
+
+/* kk_errors.c */
+void _eputs(char *);
+int _eputchar(char);
+int _putfd(char c, int fd);
+int _putsfd(char *str, int fd);
+
+/* kk_string.c */
+int _strlen(char *);
+int _strcmp(char *, char *);
+char *starts_with(const char *, const char *);
+char *_strcat(char *, char *);
+
+/* kk_string1.c */
+char *_strcpy(char *, char *);
+char *_strdup(const char *);
+void _puts(char *);
+int _putchar(char);
+
+/* kk_exits.c */
+char *_strncpy(char *, char *, int);
+char *_strncat(char *, char *, int);
+char *_strchr(char *, char);
+
+/* kk_tokenizer.c */
+char **strtow(char *, char *);
+char **strtow2(char *, char);
+
+/* kk_realloc.c */
+char *_memset(char *, char, unsigned int);
+void ffree(char **);
+void *_realloc(void *, unsigned int, unsigned int);
+
+/* kk_memory.c */
+int bfree(void **);
+
+
+/* _kbuiltin.c */
+int _myexit(info_t *);
+int _mycd(info_t *);
+int _myhelp(info_t *);
+
+/* kk_builtin1.c */
+int _myhistory(info_t *);
+int _myalias(info_t *);
+
+/* kk_getline.c */
+ssize_t get_input(info_t *);
+int _getline(info_t *, char **, size_t *);
+void sigintHandler(int);
+
+/* kk_getinfo.c */
+void clear_info(info_t *);
+void set_info(info_t *, char **);
+void free_info(info_t *, int);
 
 /* environ.c */
-int _myenv(info_t *info);
-char *_getenv(info_t *info, const char *name);
-int _unsetenv(info_c *info);
-void _setenv(info_c *info_struct);
-int populate_env_list(info_t *info);
+char *_getenv(info_t *, const char *);
+int _myenv(info_t *);
+int _mysetenv(info_t *);
+int _myunsetenv(info_t *);
+int populate_env_list(info_t *);
 
-/*kk_geten.c*/
-char **get_environ(info_t *info);
-int _unsetenvm(info_t *info, char *var);
-int _setenvm(info_t *info, char *var, char *value);
+/* kk_getenv.c */
+char **get_environ(info_t *);
+int _unsetenv(info_t *, char *);
+int _setenv(info_t *, char *, char *);
 
-/*kk_getinfo.c*/
-void clear_info(info_t *info);
-void set_info(info_t *info, char **av);
-void free_info(info_t *info, int all);
+/* k_atoi.c */
+int interactive(info_t *);
+int is_delim(char, char *);
+int _isalpha(int);
+int _atoi(char *);
 
-/*kk_getline.c*/
-ssize_t input_buf(info_t *info, char **buf, size_t *len);
-ssize_t get_input(info_t *info);
-ssize_t read_buf(info_t *info, char *buf, size_t *i);
-int _getline(info_t *info, char **ptr, size_t *length);
-/*void sigintHandler(__attribute__((unused))int sig_num);*/
+/* kk_errors1.c */
+int _erratoi(char *);
+void print_error(info_t *, char *);
+int print_d(int, int);
+char *convert_number(long int, int, int);
+void remove_comments(char *);
 
-/*kk_historys.c*/
+/* kk_history.c */
 char *get_history_file(info_t *info);
 int write_history(info_t *info);
 int read_history(info_t *info);
 int build_history_list(info_t *info, char *buf, int linecount);
 int renumber_history(info_t *info);
 
-
-/* kk_errors.c */
-void _eputs(char *str);
-int _eputchar(char c);
-int _putfd(char c, int fd);
-int _putsfd(char *str, int fd);
-
-/* kk_1error.c */
-int _erratoi(char *s);
-void print_error(info_t *info, char *estr);
-int print_d(int input, int fd);
-char *convert_number(long int num, int base, int flags);
-void remove_comments(char *buf);
+/* kk_lists.c */
+list_t *add_node(list_t **, const char *, int);
+list_t *add_node_end(list_t **, const char *, int);
+size_t print_list_str(const list_t *);
+int delete_node_at_index(list_t **, unsigned int);
+void free_list(list_t **);
 
 
-/*kk_exist.c*/
-char *_strncpy(char *dest, char *src, int n);
-char *_strncat(char *dest, char *src, int n);
-char *_strchr(char *s, char c);
-
-/*kk_lists.c*/
-list_t *add_node(list_t **head, const char *str, int num);
-list_t *add_node_end(list_t **head, const char *str, int num);
-size_t print_list_str(const list_t *h);
-int delete_node_at_index(list_t **head, unsigned int index);
-void free_list(list_t **head_ptr);
-
-/*kk_lists1.c*/
-size_t list_len(const list_t *h);
-char **list_to_strings(list_t *head);
-size_t print_list(const list_t *h);
-list_t *node_starts_with(list_t *node, char *prefix, char c);
-ssize_t get_node_index(list_t *head, list_t *node);
-
-/*kk_memory.c*/
-int bfree(void **ptr);
-
-/*kk_parser.c*/
-int is_cmd(info_t *info, char *path);
-char *dup_chars(char *pathstr, int start, int stop);
-char *find_path(info_t *info, char *pathstr, char *cmd);
-
-/*kk_reallocation.c*/
-char *_memset(char *s, char b, unsigned int n);
-void ffree(char **pp);
-void *_realloc(void *ptr, unsigned int old_size, unsigned int new_size);
-
-/*kk_shell_loops.c*/
-int hsh(info_t *info, char **av);
-int find_builtin(info_t *info);
-void find_cmd(info_t *info);
-void fork_cmd(info_t *info);
-
-/*kk_string.c*/
-int _strlen(char *s);
-int _strcmp(char *s1, char *s2);
-char *starts_with(const char *haystack, const char *needle);
-char *_strcat(char *dest, char *src);
-
-/*kk_string1.c*/
-char *_strcpy(char *dest, char *src);
-char *_strdup(const char *str);
-void _puts(char *str);
-int _putchar(char c);
-
-/*kk_token.c*/
-char **strtow(char *str, char *d);
-char **strtow2(char *str, char d);
-
-/*kk_vars.c*/
-void check_env(r_var **h, char *in, data_shell *data);
-int check_vars(r_var **h, char *in, char *st, data_shell *data);
-char *replaced_input(r_var **head, char *input, char *new_input, int nlen);
-char *rep_var(char *input, data_shell *datash);
-
-/* main.c */
-/**
- *void sigint_handler(int sig);
- *char *input_prompt(data_shell *);
- *void start_shell(data_shell *);
- *void init_shell(data_shell *);
- *void free_data(data_shell *);
- *void exit_shell(data_shell *);
- */
-
-/* k_atoi.c */
-int interactive(info_t *info);
-int is_delim(char c, char *delim);
-int _isalpha(int c);
-int _atoi(char *s);
-void reverse_string(char *s);
-char *itoa(int num, char *str, int base);
-
-#endif
