@@ -124,7 +124,7 @@ int build_history_list(info_t *info, char *buf, int linecount)
 }
 
 /**
- * renumber_history - This is the renumbers the history linked list after changes
+ * renumber_history - This is renumbers the history linked list after changes
  * @info: This is structure containing potential arguments. Used to maintain
  *
  * Return: This is the new histcount
