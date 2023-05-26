@@ -52,7 +52,7 @@ int _unsetenv(info_t *info)
 		return (1);
 	}
 	for (i = 1; i <= info->argc; i++)
-		_unsetenv(info, info->argv[i]);
+		_unsetenv(info->argv[i]);
 	return (0);
 }
 
@@ -70,7 +70,7 @@ void _setenv(info_t *info_struct)
 		_eputs("Incorrect number of arguements\n");
 		return (1);
 	}
-	if (_setenv(info, info->argv[1], info->argv[2]))
+	if (_setenv(info, info->argv[1], info->argv[2], 1) == 0)
 		return (0);
 	return (1);
 }

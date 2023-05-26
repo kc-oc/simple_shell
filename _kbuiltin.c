@@ -10,77 +10,70 @@
 
 int _myexit(info_t *info)
 {
-	int exit_c;
 
 	if (info->argv[1])  /* If there is an exit arguement */
-	{
-		exit_c = _erratoi(info->argv[1]);
-		if (exit_c == -1)
-		{
-			info->status = 2;
-			print_error(info, "Illegal number: ");
-			_eputs(info->argv[1]);
-			_eputchar('\n');
-			return (1);
-		}
-		info->err_num = _erratoi(info->argv[1]);
-		return (-2);
+	{ 
+		print_error(info, "exit: ");
+	
+		return 1;
 	}
-	info->err_num = -1;
-	return (-2);
+	free_info(info, 1);
+	exit (EXIT_SUCCESS);
 }
 
 /**
- * _mycd - The changes the current directory of the process
- * @info: This structure containing potential arguments. Used to maintain
- * constant function prototype.
- *
- * Return: Always 0
+ * _mycd - Changes the current directory of the process
+ * @info: The info_t structure
+ * Return: 0 on success, 1 on failure
  */
-
 int _mycd(info_t *info)
 {
-	char *k, *m, buffer[1024];
-	int chdir_ret;
+	char *dir = info->argv[1];
+	char *pwd = _getenv(info, "PWD");
 
-	s = getcwd(buffer, 1024);
-	if (!k)
-		_puts("TODO: >>getcwd failure emsg here<<\n");
-	if (!info->argv[1])
+	if (!dir)
 	{
-		dir = _getenv(info, "HOME=");
-		if (!m)
-			chdir_ret = /* TODO: what should this be? */
-				chdir((m = _getenv(info, "PWD=")) ? m : "/");
-		else
-			chdir_ret = chdir(m);
-	}
-	else if (_strcmp(info->argv[1], "-") == 0)
-	{
-		if (!_getenv(info, "OLDPWD="))
+		dir = _getenv(info, "HOME");
+		if (!dir)
 		{
-			_puts(k);
-			_putchar('\n');
-			return (1);
+			fprintf(stderr, "cd: No home directory found\n");
+			return 1;
 		}
-		_puts(_getenv(info, "OLDPWD=")), _putchar('\n');
-		chdir_ret = /* TODO: what should this be? */
-			chdir((dir = _getenv(info, "OLDPWD=")) ? dir : "/");
 	}
-	else
-		chdir_ret = chdir(info->argv[1]);
+
+	if (_strcmp(dir, "-") == 0)
+	{
+		char *oldpwd = _getenv(info, "OLDPWD");
+		if (!oldpwd)
+		{
+			fprintf(stderr, "cd: No previous directory found\n");
+			return 1;
+		}
+		dir = oldpwd;
+		printf("%s\n", dir);
+	}
+
+	int chdir_ret = chdir(dir);
 	if (chdir_ret == -1)
 	{
-		print_error(info, "can't cd to ");
-		_eputs(info->argv[1]), _eputchar('\n');
+		perror("cd");
+		return 1;
 	}
-	else
+
+	char buffer[PATH_MAX];
+	char *cwd = getcwd(buffer, PATH_MAX);
+	if (!cwd)
 	{
-		_setenv(info, "OLDPWD", _getenv(info, "PWD="));
-		_setenv(info, "PWD", getcwd(buffer, 1024));
+		perror("getcwd");
+		return 1;
 	}
-	return (0);
+
+	_setenvm(info, "OLDPWD", pwd);
+	_setenvm(info, "PWD", cwd);
+
+	return 0;
 }
+
 
 /**
  * _myhelp - The changes the current directory of the process

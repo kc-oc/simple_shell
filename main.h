@@ -209,7 +209,7 @@ int _setenvm(info_t *info, char *var, char *value);
 
 /* k_atoi.c */
 int interactive(info_t *info);
-int is_delim(char c, char *delim);
+int is_delim(char c, char delim);
 int _isalpha(int c);
 int _atoi(char *s);
 

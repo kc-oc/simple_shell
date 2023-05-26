@@ -60,8 +60,8 @@ int find_builtin(info_t *info)
 		{"env", _myenv},
 		{"help", _myhelp},
 		{"history", _myhistory},
-		{"setenv", _mysetenv},
-		{"unsetenv", _myunsetenv},
+		{"setenv", _setenv},
+		{"unsetenv", _unsetenv},
 		{"cd", _mycd},
 		{"alias", _myalias},
 		{NULL, NULL}

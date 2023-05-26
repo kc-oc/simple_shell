@@ -8,37 +8,28 @@
  * @data: The data structure
  * Return: no return
  */
-void check_env(r_var **h, char *in, data_shell *data)
+void check_env(info_t *info, char *buf, size_t *p, size_t i, size_t len)
 {
-	int row, chr, j, lval;
-	char **_envr;
+	size_t j = *p;
 
-	_envr = data->_environ;
-	for (row = 0; _envr[row]; row++)
+	if (info->commandBufferType == CMD_AND)
 	{
-		for (j = 1, chr = 0; _envr[row][chr]; chr++)
+		if (info->status)
 		{
-			if (_envr[row][chr] == '=')
-			{
-				lval = _strlen(_envr[row] + chr + 1);
-				add_rvar_node(h, j, _envr[row] + chr + 1, lval);
-				return;
-			}
-
-			if (in[j] == _envr[row][chr])
-				j++;
-			else
-				break;
+			buf[i] = 0;
+			j = len;
+		}
+	}
+	if (info->commandBufferType == CMD_OR)
+	{
+		if (!info->status)
+		{
+			buf[i] = 0;
+			j = len;
 		}
 	}
 
-	for (j = 0; in[j]; j++)
-	{
-		if (in[j] == ' ' || in[j] == '\t' || in[j] == ';' || in[j] == '\n')
-			break;
-	}
-
-	add_rvar_node(h, j, NULL, 0);
+	*p = j;
 }
 
 /**
@@ -50,37 +41,38 @@ void check_env(r_var **h, char *in, data_shell *data)
  * @data: The data structure
  * Return: no return
  */
-int check_vars(r_var **h, char *in, char *st, data_shell *data)
+int check_vars(info_t *info)
 {
-	int i, lst, lpd;
+	int i = 0;
+	list_t *node;
 
-	lst = _strlen(st);
-	lpd = _strlen(data->pid);
-
-	for (i = 0; in[i]; i++)
+	for (i = 0; info->argv[i]; i++)
 	{
-		if (in[i] == '$')
+		if (info->argv[i][0] != '$' || !info->argv[i][1])
+			continue;
+		if (!_strcmp(info->argv[i], "$?"))
 		{
-			if (in[i + 1] == '?')
-				add_rvar_node(h, 2, st, lst), i++;
-			else if (in[i + 1] == '$')
-				add_rvar_node(h, 2, data->pid, lpd), i++;
-			else if (in[i + 1] == '\n')
-				add_rvar_node(h, 0, NULL, 0);
-			else if (in[i + 1] == '\0')
-				add_rvar_node(h, 0, NULL, 0);
-			else if (in[i + 1] == ' ')
-				add_rvar_node(h, 0, NULL, 0);
-			else if (in[i + 1] == '\t')
-				add_rvar_node(h, 0, NULL, 0);
-			else if (in[i + 1] == ';')
-				add_rvar_node(h, 0, NULL, 0);
-			else
-				check_env(h, in + i, data);
+			replace_string(&(info->argv[i]),
+					_strdup(convert_number(info->status, 10, 0)));
+			continue;
 		}
-	}
+		if (!_strcmp(info->argv[i], "$$"))
+		{
+			replace_string(&(info->argv[i]),
+					_strdup(convert_number(getpid(), 10, 0)));
+			continue;
+		}
+		node = node_starts_with(info->env, &info->argv[i][1], '=');
+		if (node)
+		{
+			replace_string(&(info->argv[i]),
+					_strdup(_strchr(node->str, '=') + 1));
+			continue;
+		}
+		replace_string(&info->argv[i], _strdup(""));
 
-	return (i);
+	}
+	return (0);
 }
 
 /**
@@ -92,47 +84,27 @@ int check_vars(r_var **h, char *in, char *st, data_shell *data)
  * @nlen: This is a new length
  * Return: The replaced string
  */
-char *replaced_input(r_var **head, char *input, char *new_input, int nlen)
+int replaced_input(info_t *info)
 {
-	r_var *indx;
-	int i, j, k;
+	int i;
+	list_t *node;
+	char *p;
 
-	indx = *head;
-	for (j = i = 0; i < nlen; i++)
+	for (i = 0; i < 10; i++)
 	{
-		if (input[j] == '$')
-		{
-			if (!(indx->len_var) && !(indx->len_val))
-			{
-				new_input[i] = input[j];
-				j++;
-			}
-			else if (indx->len_var && !(indx->len_val))
-			{
-				for (k = 0; k < indx->len_var; k++)
-					j++;
-				i--;
-			}
-			else
-			{
-				for (k = 0; k < indx->len_val; k++)
-				{
-					new_input[i] = indx->val[k];
-					i++;
-				}
-				j += (indx->len_var);
-				i--;
-			}
-			indx = indx->next;
-		}
-		else
-		{
-			new_input[i] = input[j];
-			j++;
-		}
+		node = nodeStartsWith(info->alias, info->argv[0], '=');
+		if (!node)
+			return (0);
+		free(info->argv[0]);
+		p = _strchr(node->str, '=');
+		if (!p)
+			return (0);
+		p = _strdup(p + 1);
+		if (!p)
+			return (0);
+		info->argv[0] = p;
 	}
-
-	return (new_input);
+	return (1);
 }
 
 /**
@@ -142,42 +114,29 @@ char *replaced_input(r_var **head, char *input, char *new_input, int nlen)
  * @datash: This is a data structure
  * Return: replaced string
  */
-char *rep_var(char *input, data_shell *datash)
+int rep_var(info_t *info, char *buf, size_t *p)
 {
-	r_var *head, *indx;
-	char *status, *new_input;
-	int olen, nlen;
+	size_t j = *p;
 
-	status = aux_itoa(datash->status);
-	head = NULL;
-
-	olen = check_vars(&head, input, status, datash);
-
-	if (head == NULL)
+	if (buf[j] == '|' && buf[j + 1] == '|')
 	{
-		free(status);
-		return (input);
+		buf[j] = 0;
+		j++;
+		info->commandBufferType = CMD_OR;
 	}
-
-	indx = head;
-	nlen = 0;
-
-	while (indx != NULL)
+	else if (buf[j] == '&' && buf[j + 1] == '&')
 	{
-		nlen += (indx->len_val - indx->len_var);
-		indx = indx->next;
+		buf[j] = 0;
+		j++;
+		info->commandBufferType = CMD_AND;
 	}
-
-	nlen += olen;
-
-	new_input = malloc(sizeof(char) * (nlen + 1));
-	new_input[nlen] = '\0';
-
-	new_input = replaced_input(&head, input, new_input, nlen);
-
-	free(input);
-	free(status);
-	free_rvar_list(&head);
-
-	return (new_input);
+	else if (buf[j] == ';') /* found end of this command */
+	{
+		buf[j] = 0; /* replace semicolon with null */
+		info->commandBufferType = CMD_CHAIN;
+	}
+	else
+		return (0);
+	*p = j;
+	return (1);
 }
