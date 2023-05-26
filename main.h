@@ -126,10 +126,10 @@ list_t *node_starts_with(list_t *node, char *prefix, char c);
 ssize_t get_node_index(list_t *head, list_t *node);
 
 /* kk_vars.c */
-void check_env(r_var **h, char *in, data_shell *data);
-int check_vars(r_var **h, char *in, char *st, data_shell *data);
-char *replaced_input(r_var **head, char *input, char *new_input, int nlen);
-char *rep_var(char *input, data_shell *datash);
+void check_env(info_t *info, char *buf, size_t *p, size_t i, size_t len)
+int check_vars(info_t *info);
+int replaced_input(info_t *info)
+int rep_var(info_t *info, char *buf, size_t *p)
 
 
 /* kk_parser.c */

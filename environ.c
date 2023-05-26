@@ -63,7 +63,7 @@ int _unsetenv(info_t *info)
  *               constant function prototype.
  * Return: Always 0
  */
-void _setenv(info_t *info_struct)
+void _setenv(info_t *info)
 {
 	if (info->argc != 3)
 	{
